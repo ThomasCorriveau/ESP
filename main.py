@@ -1,16 +1,26 @@
-import tkinter as tk
+from tkinter import *
+from tkinter import filedialog
+import pygame
+import numpy as np
+# pyaudio ?
 
-root = tk.Tk()
+root = Tk()
+root.title("Sound Player")
+root.geometry("500x400")
 
-canvas = tk.Canvas(root, width=600, height=300)
-canvas.grid(columnspan=3, rowspan=3)
+pygame.mixer.init()
 
-# instructions
-instructions = tk.Label(root, text="Yo", font="Arial")
-instructions.grid(columnspan=3, column=0, row=1)
+
+def play():
+    pygame.mixer.music.load(root.filename)
+    pygame.mixer.music.play(loops=0)
+
+
+root.filename = filedialog.askopenfilename(initialdir="/", title="Select a .wav file", filetypes=[("Sound file", "*.wav")])
+my_button = Button(root, text="Play selected sound", command=play)
+my_button.pack(pady=10)
+
 
 
 root.mainloop()
 
-#yo up up
-print("Corriveau")
