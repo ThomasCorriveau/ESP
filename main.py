@@ -1,9 +1,9 @@
 from tkinter import *
 from tkinter import filedialog
-import pygame
 import numpy as np
 import wave
 from tqdm import tqdm
+from time import sleep
 import sys
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
@@ -15,15 +15,14 @@ def sommeRie(x,n,p): #fonction somme qui permet de calculer l'air avec la métho
     air=0
     M=len(x)
     #print(len(x))
-    dx=x[1]-x[0]
     if p==1:
-        for k in tqdm(range(1,M)) :
-            #sleep(0.01) #sert au chargement, aspect esthetique ;)
-            air += ((raw[k-1]+raw[k])*dx/2)*np.sin(2*np.pi*n*f*dt*k)*dt
+        for k in tqdm(range(1,int(R))) :
+            #sleep(0.0001) #sert au chargement, aspect esthetique ;)
+            air += (raw[k])*np.sin(2*np.pi*n*f*dt*k)*dt
     if p==2:
-        for k in tqdm(range(1,M)) :
-            #sleep(0.01) #sert au chargement, aspect esthetique ;)
-            air += ((raw[k-1]+raw[k])*dx/2)*np.cos(2*np.pi*n*f*dt*k)*dt
+        for k in tqdm(range(1,int(R))) :
+            #sleep(0.0001) #sert au chargement, aspect esthetique ;)
+            air += (raw[k])*np.cos(2*np.pi*n*f*dt*k)*dt
     return air
 plt.style.use("bmh") #style de graphique
 print("Veuillez sélectionner le fichier audio .wav que vous voulez analyser")#Importation de fichier wav à analyser
@@ -35,12 +34,18 @@ N = int(input("Veuillez entrer le nombre d'harmonique désiré pour votre son: "
 wav = wave.open(fichierAudio, "r")
 raw = wav.readframes(-1) #trame en bytes
 raw = np.frombuffer(raw, np.int16) #en 16 bits
+E = wav.getframerate() #Fréquence d'échantillonage :nombre de points par seconde qui sont interprétés dans un fichier audio: double de l'audition humaine (généralement=44100)
 #print(raw, len(raw))
+
+#Partie Intervalle
+time = np.linspace(0, len(raw) / (2*E), num=len(raw))
+y=[0]*len(time)
+saut=np.arange(0, len(raw),1)
+print("time=",time)
 
 #Liste de constante
 T=1/f #Période en (s)
-E = wav.getframerate() #Fréquence d'échantillonage :nombre de points par seconde qui sont interprétés dans un fichier audio: double de l'audition humaine (généralement=44100)
-dt=1/E #Varriation du temps entre les points du graphique du signal sonore
+dt=time[1] #Varriation du temps entre les points du graphique du signal sonore
 R=T/dt #Nombre de rectangle à aditionner pour la somme de riemann (nombre de points sur le signal dans une période)
 #print("T=",T,"dt=",dt,"R=",R) #Permet de voir les valeurs
 
@@ -53,20 +58,14 @@ for n in range(1,(N+1)):
 # for n in range(0,N):
 #     print(a[n], "---", b[n])
 
-#Partie Intervalle
-time = np.linspace(0, len(raw) / (2*E), num=len(raw))
-y=[0]*len(time)
-saut=np.arange(0, len(raw),1)
-#print("time=",time)
-
 #Permet de voir les n"iem" harmonnique
-q = int(input("Veuillez entrer le nombre d'harmonique désiré à voir dans un graph: ")) #l'utilisateur entre la fréquence
+q = int(input("Veuillez entrer le nombre d'harmoniques désiré à voir dans un graph: ")) #l'utilisateur entre la fréquence
 harm=[0]*q
 
 #Partie spectre
 A=[0]*N # Liste d'amplitude
 liste_f = [0]*N # Liste de fréquence
-for n in range(1,N):
+for n in range(0,N):
     A[n]=np.sqrt((a[n]**2+b[n]**2))
     liste_f[n]= n*f
     #print(A[n]) #Impression des amplitude
@@ -88,7 +87,7 @@ fig.subplots_adjust(left=0.16, bottom=0.12, right=0.95, top=0.950, wspace=0.2, h
 #graphPrincipale
 graphPrincipale.set(title="Graphique du son pour une période",ylabel="Amplitude (Bytes) ", xlabel="Temps (s)") #titre et axe
 line, = graphPrincipale.plot(time, raw, color="c")  #graduation d'axe est couleur
-graphPrincipale.plot(time,y,linewidth=0.25, color="black",) #axe des x
+graphPrincipale.plot(time,y,linewidth=0.25, color="black",) #axe des y=0
 graphPrincipale.set_xlim(0,1/f) #limte des x (jusqu'à sa période)
 
 #garphHarmonique
@@ -111,3 +110,4 @@ ani = animation.FuncAnimation(fig, animate, interval=10, blit=True, save_count=5
 
 plt.tight_layout()
 plt.show()
+
