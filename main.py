@@ -41,12 +41,13 @@ E = wav.getframerate() #Fréquence d'échantillonage :nombre de points par secon
 time = np.linspace(0, len(raw) / (2*E), num=len(raw))
 y=[0]*len(time)
 saut=np.arange(0, len(raw),1)
-print("time=",time)
+#print("time=",time)
 
 #Liste de constante
 T=1/f #Période en (s)
 dt=time[1] #Varriation du temps entre les points du graphique du signal sonore
 R=T/dt #Nombre de rectangle à aditionner pour la somme de riemann (nombre de points sur le signal dans une période)
+#print(int(R), R)
 #print("T=",T,"dt=",dt,"R=",R) #Permet de voir les valeurs
 
 #Calcul des coéficients a[n] et b[n] de la n"iem" harmonique. n est le numéro de l'harmonique
@@ -67,7 +68,7 @@ A=[0]*N # Liste d'amplitude
 liste_f = [0]*N # Liste de fréquence
 for n in range(0,N):
     A[n]=np.sqrt((a[n]**2+b[n]**2))
-    liste_f[n]= n*f
+    liste_f[n]= (n*f+f)
     #print(A[n]) #Impression des amplitude
 Amp_max, freq_max = None, None
 for k in range(1, len(A)):
@@ -110,4 +111,6 @@ ani = animation.FuncAnimation(fig, animate, interval=10, blit=True, save_count=5
 
 plt.tight_layout()
 plt.show()
+
+
 
